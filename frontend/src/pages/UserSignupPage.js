@@ -6,7 +6,8 @@ export class UserSignupPage extends React.Component {
     displayName: '',
     username: '',
     password: '',
-    passwordRepeat: ''
+    passwordRepeat: '',
+    pendingApiCall: false
   };
 
   onChangeDisplayName = (event) => {
@@ -31,7 +32,14 @@ export class UserSignupPage extends React.Component {
       username: this.state.username,
       password: this.state.password
     }
-    this.props.actions.postSignup(user);
+    this.setState({ pendingApiCall: true });
+    this.props.actions.postSignup(user)
+      .then(reponse => {
+        this.setState({ pendingApiCall: false });
+      })
+      .catch(error =>{
+        this.setState({ pendingApiCall: false });
+      });
   }
 
   render() {
@@ -58,7 +66,7 @@ export class UserSignupPage extends React.Component {
         </div>
         <div className="col-12 mb-3">
           <label>Password</label>
-          <input 
+          <input
             className="form-control"
             placeholder="Your password" type="password"
             value={this.state.password}
@@ -67,16 +75,21 @@ export class UserSignupPage extends React.Component {
         </div>
         <div className="col-12 mb-3">
           <label>Repeat Password</label>
-          <input 
+          <input
             className="form-control"
-            placeholder="Repeat your password" 
+            placeholder="Repeat your password"
             type="password"
             value={this.state.passwordRepeat}
             onChange={this.onChangePasswordRepeat}
           />
         </div>
         <div className="text-center">
-          <button className="btn btn-primary" onClick={this.onClickSignUp}>Sign Up</button>
+          <button disabled={this.state.pendingApiCall} className="btn btn-primary" onClick={this.onClickSignUp}>
+            {this.state.pendingApiCall && <div className="spinner-border text-light spinner-border-sm mr-sm-1" role="status">
+              <span className="sr-only">Loading...</span>
+            </div>}
+            Sign Up
+          </button>
         </div>
       </div>
     );
